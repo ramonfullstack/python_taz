@@ -1,0 +1,433 @@
+# Templates reutilizaveis
+
+.argocd-deploy-production-api:
+  image: $CIKNIFE_IMAGE
+  cache: {}
+  stage: deploy production
+  variables:
+    ARGOCD_BRANCH: master
+    ARGOCD_SERVER: $CATALOGO_ARGOCD_SERVER
+    ARGOCD_AUTH_TOKEN: $CATALOGO_ARGOCD_AUTH_TOKEN
+  script:
+    - ci-knife argocd-deploy --variation ${ARGOCD_APPS} --path production --check-gmud
+    - ci-knife argocd-sync --apps ${ARGOCD_APPS}
+  dependencies: []
+  needs:
+    - container release
+  rules:
+    - if: "$CI_COMMIT_TAG"
+      when: manual
+
+.argocd-rollback-production-api:
+  extends: .argocd-deploy-production-api
+  stage: rollback production
+  script: ci-knife argocd-rollback --path production
+
+.argocd-deploy-production-worker:
+  extends: .argocd-deploy-production-api
+  before_script:
+    - export ARGOCD_SERVER="$WORKER_A_ARGOCD_SERVER"
+    - export ARGOCD_AUTH_TOKEN="$WORKER_A_ARGOCD_AUTH_TOKEN"
+
+.argocd-rollback-production-worker:
+  extends: .argocd-deploy-production-worker
+  stage: rollback production
+  script: ci-knife argocd-rollback --path production
+
+
+# Deploys
+
+api production:
+  extends: .argocd-deploy-production-api
+  variables:
+    ARGOCD_APPS: taz
+
+consumer category production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-category
+
+consumer complete product production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-complete-product
+
+consumer datalake production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-datalake
+
+consumer enriched product production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-enriched-product
+
+consumer factsheet production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-factsheet
+
+consumer label production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-label
+
+consumer matching product production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-matching-product
+
+consumer matching production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-matching
+
+consumer media production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-media
+
+consumer media bucket production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-media-bucket
+
+consumer metadata input production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-metadata-input
+
+consumer metadata verify production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-metadata-verify
+
+consumer price 3P production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-price-3p
+
+consumer price rule production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-price-rule
+
+consumer pricing production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-pricing
+
+consumer product exporter production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-product-exporter
+
+consumer product production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-product
+
+consumer product score production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-product-score
+
+consumer product writer production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-product-writer
+
+consumer rebuild production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-rebuild
+
+consumer stock 3P production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-stock-3p
+
+consumer stock production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-stock
+
+consumer update category production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-update-category
+
+consumer user review production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-user-review
+
+consumer catalog notification production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-catalog-notification
+
+cron price rules production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-cron-price-rules
+
+cron metabooks ftp production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-cron-metabooks-ftp
+
+cron store pickup checker production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-cron-store-pickup-checker
+
+poller base price production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-base-price
+
+poller category production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-category
+
+poller factsheet production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-factsheet
+
+poller lu content production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-lu-content
+
+poller video production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-video
+
+poller partner production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-partner
+
+poller price campaign production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-price-campaign
+
+poller price production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-price
+
+poller product production:
+  extends: .argocd-deploy-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-product
+
+
+# Rollbacks
+
+api production rollback:
+  extends: .argocd-rollback-production-api
+  variables:
+    ARGOCD_APPS: taz
+
+consumer category production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-category
+
+consumer complete product production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-complete-product
+
+consumer datalake production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-datalake
+
+consumer enriched product production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-enriched-product
+
+consumer factsheet production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-factsheet
+
+consumer label production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-label
+
+consumer matching product production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-matching-product
+
+consumer matching production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-matching
+
+consumer media production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-media
+
+consumer media bucket production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-media-bucket
+
+consumer metadata input production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-metadata-input
+
+consumer metadata verify production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-metadata-verify
+
+consumer price 3P production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-price-3p
+
+consumer price rule production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-price-rule
+
+consumer pricing production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-pricing
+
+consumer product exporter production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-product-exporter
+
+consumer product production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-product
+
+consumer product score production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-product-score
+
+consumer product writer production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-product-writer
+
+consumer rebuild production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-rebuild
+
+consumer stock 3P production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-stock-3p
+
+consumer stock production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-stock
+
+consumer update category production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-update-category
+
+consumer user review production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-user-review
+
+consumer catalog notification production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-consumer-catalog-notification
+
+cron price rules production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-cron-price-rules
+
+cron metabooks ftp production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-cron-metabooks-ftp
+
+cron store pickup checker production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-cron-store-pickup-checker
+
+poller base price production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-base-price
+
+poller category production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-category
+
+poller factsheet production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-factsheet
+
+poller lu content production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-lu-content
+
+poller video production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-video
+
+poller partner production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-partner
+
+poller price campaign production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-price-campaign
+
+poller price production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-price
+
+poller product production rollback:
+  extends: .argocd-rollback-production-worker
+  variables:
+    ARGOCD_APPS: taz-poller-product
+
+create gmud:
+  image: $CIKNIFE_IMAGE
+  stage: gmud
+  script:
+    - ci-knife create-gmud
+  dependencies: []
+  cache: []
+  rules:
+    - if: "$CI_COMMIT_TAG"
+      when: manual
+      allow_failure: true

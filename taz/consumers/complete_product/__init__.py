@@ -1,0 +1,1 @@
+SCOPE = 'complete_product'

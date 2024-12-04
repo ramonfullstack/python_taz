@@ -1,0 +1,48 @@
+site_name: Taz
+site_description: O Taz é responsável por pré-processar e publicar produtos no [ACME](https://github.com/luizalabs/acme). Ele é composto por uma série de workers assíncronos especializados por escopo de informação (produto, mídias, precificação e ficha técnica).
+site_author: LuizaLabs
+
+site_url: https://docs.luizalabs.com/taz/
+theme: readthedocs
+
+nav:
+    - Home: 'index.md'
+    - API:
+        - 'Blacklist': 'api/blacklist.md'
+        - 'Critérios Score': 'api/score_criterias.md'
+        - 'Enriquecimentos de Produtos': 'api/enriched_products.md'
+        - 'Entidades': 'api/entities.md'
+        - 'Matching': 'api/matching.md'
+        - 'Métricas': 'api/metrics.md'
+        - 'Notificacão': 'api/notification.md'
+        - 'Pontuação de pesos': 'api/score_weight.md'
+        - 'Produtos': 'api/products.md'
+        - 'Produtos Pendentes': 'api/pending.md'
+        - 'Score': 'api/score.md'
+        - 'Rebuild': 'api/rebuild.md'
+        - 'Review': 'api/review.md'
+        - 'Selo': 'api/badges.md'
+        - 'Trava de Preço': 'api/price_lock.md'
+    - Mensagens:
+        - 'Categoria': 'consumers/category.md'
+        - 'Ficha técnica': 'consumers/factsheet.md'
+        - 'Mídia': 'consumers/media.md'
+        - 'Preço / Estoque': 'consumers/price_stock.md'
+        - 'Produto': 'consumers/product.md'
+    - Notificações:
+        - 'Geral': 'notifications/index.md'
+    - Infraestrutura: 
+        - 'Geral': 'infra/index.md'
+        - 'Rebuild': 'infra/rebuild.md'
+        - 'SQS': 'infra/sqs.md'
+        - 'Pollers': 'infra/pollers.md'
+        - 'Consumers': 'infra/consumers.md'
+    - Projetos do catálogo:
+        - 'URLs': 'projects/urls.md'
+        - 'Logs e dashboards': 'projects/logs-dashboards.md'
+        - 'Link documentações': 'projects/docs.md'
+    - Catalog Integrations:
+        - 'Produto de seller sem imagem': 'catalog-integrations/seller_product_without_image.md'
+        - 'Bundles aparecendo duplicados': 'catalog-integrations/duplicated_bundles.md'
+        - 'V1 não retornando nenhum produto': 'catalog-integrations/v1_returns_no_product.md'
+    - MongoDB Indexes: 'mongodb_indexes.md'

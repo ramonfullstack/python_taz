@@ -1,0 +1,26 @@
+repos:
+    -   repo: https://github.com/pre-commit/pre-commit-hooks
+        rev: v2.5.0
+        hooks:
+            -   id: check-merge-conflict
+                name:  analisando se existem arquivos que contêm strings de conflito de merge
+            -   id: check-yaml
+                name: analisando sixtase de arquivos .yaml
+            -   id: end-of-file-fixer
+                name: analisando se os arquivos terminam com uma nova linha
+            -   id: trailing-whitespace
+                name: removendo espaços em branco
+    -   repo: local
+        hooks:
+            -   id: flake8
+                name: flake8
+                entry: flake8
+                language: system
+                always_run: true
+                pass_filenames: false
+            -   id: isort
+                name: isort
+                entry: isort . --check
+                language: system
+                always_run: true
+                pass_filenames: false

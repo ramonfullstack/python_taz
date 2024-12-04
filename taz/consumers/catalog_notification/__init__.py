@@ -1,0 +1,1 @@
+SCOPE = 'catalog_notification'

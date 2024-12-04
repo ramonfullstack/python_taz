@@ -1,0 +1,2283 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "2.481.1"
+  title: "Taz-API"
+  contact:
+    email: "squad-catalogo@luizalabs.com"
+tags:
+- name: "matching"
+  description: "Matching"
+- name: "product"
+  description: "Retrieve product information"
+- name: "product_images"
+  description: "Retrieve product images information by sku and seller_id"
+- name: "product_images_by_navigation_id"
+  description: "Retrieve product images information by navigation_id"
+- name: "pending"
+  description: "Pending operations"
+- name: "review"
+  description: "Reviews"
+- name: "badge"
+  description: "Badges"
+- name: "price_lock"
+  description: "Price Lock"
+- name: "buybox"
+  description: "BuyBox"
+- name: "notification"
+  description: "Notification"
+- name: "blacklist"
+  description: "Blacklisted Products"
+- name: "rebuild"
+  description: "Rebuild"
+- name: "seller"
+  description: "Seller Information"
+- name: "metrics"
+  description: "Metrics"
+- name: "enriched_product"
+  description: "Enriched Products Information"
+- name: "entity"
+  description: "Lists all entities"
+- name: "metabooks"
+  description: "Metabooks"
+- name: "score"
+  description: "Retrieve products score information"
+- name: "/v1/products"
+  description: "New endpoints for product management"
+- name: "forbidden terms"
+  description: "Handle with forbidden terms"
+- name: "classifications rules"
+  description: "Handle classifications rules"
+- name: "minimum order quantity"
+  description: "Handle minimum order quantity"
+schemes:
+- "https"
+- "http"
+paths:
+  /forbidden_terms/:
+    get:
+      tags:
+        - "forbidden terms"
+      summary: "Consulta chave do Redis com DE-PARA de termos proibidos"
+      operationId: "ForbiddenTermsRedisHandler"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+    post:
+      tags:
+        - "forbidden terms"
+      summary: "Adiciona novo termo ao DE-PARA de termos proibidos"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ForbiddenTerms"
+      responses:
+        201:
+          description: "Created"
+    delete:
+      tags:
+        - "forbidden terms"
+      summary: "Deleta chaves do DE-PARA no Redis"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ForbiddenTerms"
+      responses:
+        200:
+          description: "Success"
+        204:
+          description: "No Content"
+        400:
+          description: "Bad Request"
+        404:
+          description: "Not Found"
+        500:
+          description: "Internal Server Error"
+
+  /matching/seller/{sellerId}/sku/{sku}:
+    get:
+      tags:
+      - "matching"
+      summary: "Consulta matching entre produtos"
+      operationId: "MatchingHandler"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sellerId"
+        in: "path"
+        required: true
+        type: string
+      - name: "sku"
+        in: "path"
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /matching/remove/{variationId}:
+    get:
+      tags:
+        - "matching"
+      summary: "Deleta matching de uma variação"
+      operationId: "RemoveMatchingHandler"
+      parameters:
+        - name: "variationId"
+          in: "path"
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/list:
+    get:
+      tags:
+      - "product"
+      summary: "Lista todos os produtos no TAZ"
+      operationId: "ListProductHandler"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/seller/{sellerId}/sku/{sku}:
+    get:
+      tags:
+        - "product"
+      summary: "Traz informações do produto com SKU e seller informados"
+      operationId: "ProductHandler"
+      produces:
+      - "application/json"
+      parameters:
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/raw/seller_id/{sellerId}/sku/{sku}:
+    get:
+      tags:
+        - "product"
+      summary: "Traz informações com os dados do produto original"
+      operationId: "RawProductBySkuSellerHandler"
+      parameters:
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/raw/navigation_id/{navigation_id}:
+    get:
+      tags:
+        - "product"
+      summary: "Traz informações com os dados do produto original"
+      operationId: "RawProductByNavigationHandler"
+      parameters:
+        - name: "navigation_id"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/parent_sku/{parentSku}/seller_id/{sellerId}:
+    get:
+      tags:
+        - "product"
+      summary: "Traz informações do produto com base no sku 'pai'"
+      operationId: "ProductVariationHandler"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "parentSku"
+          in: "path"
+          type: string
+          required: true
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/medias/seller/{sellerId}/sku/{sku}/:
+    get:
+      tags:
+        - "product_images"
+      summary: "Traz informações de imagens de produto com SKU e seller informados"
+      operationId: "ProductMediasSkuSellerHandler"
+      produces:
+      - "application/json"
+      parameters:
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/medias/navigation_id/{navigation_id}:
+    get:
+      tags:
+        - "product_images_by_navigation_id"
+      summary: "Traz informações de imagens de produto com o navigation_id informado"
+      operationId: "ProductMediasNavigationIdHandler"
+      produces:
+      - "application/json"
+      parameters:
+        - name: "navigation_id"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/variation/{sellerId}/count:
+    get:
+      tags:
+        - "product"
+      summary: "Conta quantidade de produtos do seller informado"
+      operationId: "ProductStatHandler"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/variation/unpublish:
+    get:
+      tags:
+        - "product"
+      summary: "Lista todos os produtos que já foram despublicados"
+      operationId: "ProductUnpublishHandler"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "navigation_id"
+          in: "query"
+          type: string
+          description: "The navigation ID of the unpublished product"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    post:
+      tags:
+        - "product"
+      summary: "Despublica um produto"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/UnpublishProduct"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    delete:
+      tags:
+        - "product"
+      summary: "Remove a despublicação de um produto"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/UnpublishProduct"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad Request"
+        404:
+          description: "Not Found"
+  /product/navigation/{navigationId}:
+    get:
+      tags:
+        - "product"
+      summary: "Lista uma navegação"
+      operationId: "ProductNavigationIdHandler"
+      parameters:
+        - name: "navigationId"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/custom-attributes/{sellerId}/{sku}:
+    get:
+      tags:
+      - "product"
+      summary: "Lista os atributos de um SKU"
+      operationId: "CustomProductAttributes"
+      parameters:
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not found"
+  /product/ean/{ean}:
+    get:
+      tags:
+      - "product"
+      summary: "Lista um produto de acordo com seu EAN"
+      operationId: "ProductEanHandler"
+      parameters:
+        - name: "ean"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /product/extra_data:
+    post:
+      tags:
+        - "product"
+      summary: "Atualiza o produto com informação de extra data"
+      operationId: "ProductExtraDataHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ProductExtraData"
+      responses:
+        200:
+          description: "Update with success"
+        404:
+          description: "Product not found"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorized"
+  /trusted_product/ean/{ean}:
+    get:
+      tags:
+      - "product"
+      summary: "Retorna informações de produto de acordo com seu EAN, registradas apenas por sellers confiáveis"
+      operationId: "TrustedProductEanHandler"
+      parameters:
+        - name: "ean"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /pending/list:
+    get:
+      tags:
+      - "pending"
+      summary: "Lista todos os produtos pendentes"
+      operationId: "ListPendingHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /pending/seller/{sellerId}/sku/{sku}:
+    get:
+      tags:
+        - "pending"
+      summary: "Recupera produto pendente"
+      operationId: "PendingHandlerGet"
+      parameters:
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    delete:
+      tags:
+        - "pending"
+      summary: "Deleta produto pendente"
+      operationId: "PendingHandlerDelete"
+      parameters:
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    put:
+      tags:
+        - "pending"
+      summary: "Atualiza um produto pendente"
+      operationId: "PendingHandlerPut"
+      parameters:
+        - name: "sellerId"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/PendingDelete"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /pending/sellers:
+    get:
+      tags:
+        - "pending"
+      summary: "Lista todos os sellers com pendências"
+      operationId: "PendingSellerHandler"
+      responses:
+        200:
+          description: "Summary"
+        404:
+          description: "Not Found"
+  /badge/{slug}/sku/{sku}/seller/{sellerId}:
+    delete:
+      tags:
+        - "badge"
+      summary: "Deleta um selo de um produto"
+      operationId: "BadgeProductItemHandler"
+      parameters:
+        - name: "slug"
+          type: string
+          in: "path"
+          required: true
+        - name: "sku"
+          type: string
+          in: "path"
+          required: true
+        - name: "sellerId"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /badge/{slug}/products:
+    delete:
+      tags:
+        - "badge"
+      summary: "Deleta um selo de uma lista de produtos"
+      operationId: "BadgeProductListItemHandler"
+      parameters:
+        - name: "slug"
+          type: string
+          in: "path"
+          required: true
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ProductListItem"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /badge/list:
+    get:
+      tags:
+        - "badge"
+      summary: "Lista todos os selos"
+      operationId: "BadgeListHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /v1/badges:
+    get:
+      tags:
+        - "badge"
+      summary: "Listar paginado os selos"
+      operationId: "BadgePaginatedListHandler"
+      parameters:
+        - name: "offset"
+          type: string
+          in: "query"
+        - name: "page_number"
+          type: string
+          in: "query"
+      responses:
+        200:
+          description: "Success"
+  /badge/{slug}:
+    get:
+      tags:
+        - "badge"
+      summary: "Pega as informações de um selo específico"
+      operationId: "BadgeHandlerSlugGet"
+      parameters:
+        - name: "slug"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    post:
+      tags:
+        - "badge"
+      summary: "Cria um selo em um slug especifíco"
+      operationId: "BadgeHandlerSlugPost"
+      parameters:
+        - name: "slug"
+          type: string
+          in: "path"
+          required: true
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Badge"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    put:
+      tags:
+        - "badge"
+      summary: "Atualiza as informações de um selo específico"
+      operationId: "BadgeHandlerSlugPut"
+      parameters:
+        - name: "slug"
+          type: string
+          in: "path"
+          required: true
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Badge"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    delete:
+      tags:
+        - "badge"
+      summary: "Deleta um selo em um slug específico"
+      operationId: "BadgeHandlerSlugDelete"
+      parameters:
+        - name: "slug"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /badge:
+    post:
+      tags:
+        - "badge"
+      summary: "Cria as informações de um selo"
+      operationId: "BadgeHandlerPost"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Badge"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    put:
+      tags:
+        - "badge"
+      summary: "Atualiza as informações de um selo"
+      operationId: "BadgeHandlerPut"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Badge"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /price_lock/list:
+    get:
+      tags:
+        - "price_lock"
+      operationId: "PriceLockListHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /price_lock/:
+    get:
+      tags:
+        - "price_lock"
+      operationId: "PriceLockHandlerGet"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    post:
+      tags:
+        - "price_lock"
+      operationId: "PriceLockHandlerPost"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/PriceLock"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /price_lock/seller/{sellerId}:
+    get:
+      tags:
+        - "price_lock"
+      operationId: "PriceLockHandlerSellerGet"
+      parameters:
+        - name: "sellerId"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    post:
+      tags:
+        - "price_lock"
+      operationId: "PriceLockHandlerSellerPost"
+      parameters:
+        - name: "sellerId"
+          type: string
+          in: "path"
+          required: true
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/PriceLock"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /buybox/sellers:
+    get:
+      tags:
+        - "buybox"
+      operationId: "BuyBoxSellerHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /buybox/products/{sellerId}:
+    get:
+      tags:
+        - "buybox"
+      operationId: "BuyBoxProductListHandler"
+      parameters:
+        - name: "sellerId"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /buybox/seller/{sellerId}/sku/{sku}:
+    get:
+      tags:
+        - "buybox"
+      operationId: "BuyBoxHandler"
+      parameters:
+        - name: "sellerId"
+          type: string
+          in: "path"
+          required: true
+        - name: "sku"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /notification/{source}:
+    post:
+      tags:
+        - "notification"
+      operationId: "NotificationHandler"
+      parameters:
+        - name: "source"
+          type: string
+          in: "path"
+          required: true
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/NotificationPayload"
+      responses:
+        200:
+          description: "Success"
+  /blacklist:
+    post:
+      tags:
+        - "blacklist"
+      operationId: "BlacklistHandlerPost"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Blacklist"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    delete:
+      tags:
+        - "blacklist"
+      operationId: "BlacklistHandlerDelete"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /blacklist/list:
+    get:
+      tags:
+        - "blacklist"
+      operationId: "BlacklistListHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /rebuild/catalog/notification:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildCatalogNotificationHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildCatalogNotification"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad Request"
+  /rebuild/notification:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Rebuild"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /rebuild/products:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildProductHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildProduct"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /rebuild/marvin/seller:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildMarvinSellerHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildMarvin"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /rebuild/score:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildProductScoreHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildScore"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /rebuild/score/products:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildProductScoreBySkuHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildProductScore"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /rebuild/metabooks/{ean}:
+    get:
+      tags:
+        - "rebuild"
+      operationId: "RebuildMetabooksHandler"
+      parameters:
+        - name: "ean"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /rebuild/product/exporter:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildProductExporterHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildProductExporter"
+      responses:
+        200:
+          description: "Success"
+  /rebuild/matching/product:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildMatchingProductHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildMatching"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad Request"
+  /rebuild/classify/product:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildClassifyProductHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildMatching"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad Request"
+  /rebuild/medias:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildMediaHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildMedia"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad Request"
+  /seller/list:
+    get:
+      tags:
+        - "seller"
+      operationId: "ListSellerHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /seller/{seller_id}:
+      get:
+        tags:
+          - "seller"
+        operationId: "SellerHandler"
+        parameters:
+          - name: "seller_id"
+            type: string
+            in: "path"
+            required: true
+        responses:
+          200:
+            description: "Success"
+          404:
+            description: "Not Found"
+  /seller/:
+      post:
+        tags:
+          - "seller"
+        operationId: "SellerHandler"
+        parameters:
+          - name: "body"
+            in: "body"
+            required: true
+            schema:
+              $ref: "#/definitions/Seller"
+        responses:
+          200:
+            description: "Success"
+          400:
+            description: "Bad Request"
+  /metrics:
+    get:
+      tags:
+        - "metrics"
+      operationId: "MetricsHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /enriched_product/{navigationId}:
+    get:
+      tags:
+        - "enriched_product"
+      operationId: "EnrichedProductsHandler"
+      parameters:
+        - name: "navigationId"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /enriched_product/sku/{sku}/seller/{sellerId}:
+    get:
+      tags:
+        - "enriched_product"
+      operationId: "EnrichedSellerProductsHandler"
+      parameters:
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+        - name: "sellerId"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /enriched_product/navigation_id/{navigation_id}/source/{source}:
+    get:
+      tags:
+        - "enriched_product"
+      operationId: "EnrichedSourceHandler"
+      parameters:
+        - name: "navigation_id"
+          in: "path"
+          type: string
+          required: true
+        - name: "source"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /enriched_product/sku/{sku}/seller/{seller_id}/source/{source}:
+    delete:
+      tags:
+        - "enriched_product"
+      operationId: "EnrichedSourceHandler"
+      parameters:
+        - name: "seller_id"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+        - name: "source"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        204:
+          description: "No Content"
+        404:
+          description: "Not Found"
+  /entity/list:
+    get:
+      tags:
+        - "entity"
+      operationId: "EntitiesHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /metabooks/categories:
+    post:
+      tags:
+        - "metabooks"
+      operationId: "MetabooksCategoryHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Categories"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/seller/{sellerId}:
+    get:
+      tags:
+        - "score"
+      operationId: "SellerScoreHandler"
+      parameters:
+        - name: "sellerId"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/category/{categoryId}:
+    get:
+      tags:
+        - "score"
+      operationId: "CategoryScoreHandler"
+      parameters:
+        - name: "categoryId"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/seller/{sellerId}/sku/{sku}:
+    get:
+      tags:
+        - "score"
+      operationId: "ProductScoreHandler"
+      parameters:
+        - name: "sellerId"
+          type: string
+          in: "path"
+          required: true
+        - name: "sku"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/criteria/list:
+    get:
+      tags:
+        - "score"
+      operationId: "ScoreCriteriaListHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/criteria:
+    post:
+      tags:
+        - "score"
+      operationId: "ScoreCriteriaHandlerPost"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ScoreCriteria"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/criteria/{entityName}:
+    get:
+      tags:
+        - "score"
+      operationId: "ScoreCriteriaHandlerEntityGet"
+      parameters:
+        - name: "entityName"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    delete:
+      tags:
+        - "score"
+      operationId: "ScoreCriteriaHandlerEntityDelete"
+      parameters:
+        - name: "entityName"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/weight/list:
+    get:
+      tags:
+        - "score"
+      operationId: "ScoreWeightListHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/weight:
+    post:
+      tags:
+        - "score"
+      operationId: "ScoreWeightHandlerPost"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ScoreWeight"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score/weight/{entityName}/{criteriaName}:
+    get:
+      tags:
+        - "score"
+      operationId: "ScoreWeightHandlerEntityGet"
+      parameters:
+        - name: "entityName"
+          type: string
+          in: "path"
+          required: true
+        - name: "criteriaName"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    delete:
+      tags:
+        - "score"
+      operationId: "ScoreWeightHandlerEntityDelete"
+      parameters:
+        - name: "entityName"
+          type: string
+          in: "path"
+          required: true
+        - name: "criteriaName"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /score:
+    get:
+      tags:
+        - "score"
+      operationId: "CatalogScoreHandler"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /factsheet/seller/{seller_id}/sku/{sku}:
+    get:
+      tags:
+        - "factsheet"
+      operationId: "FactsheetHandler"
+      parameters:
+        - name: "seller_id"
+          type: string
+          in: "path"
+          required: true
+        - name: "sku"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /redis/poller/key/{key}:
+    get:
+      tags:
+        - "redis"
+      parameters:
+        - name: "key"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+    delete:
+      tags:
+        - "redis"
+      parameters:
+        - name: "key"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        204:
+          description: "No content"
+  /stocks/seller/{seller_id}/sku/{sku}:
+    get:
+      tags:
+        - "stocks"
+      parameters:
+        - name: "seller_id"
+          type: string
+          in: "path"
+          required: true
+        - name: "sku"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+  /metadatainput/notification/:
+    post:
+      tags:
+        - "metadata"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/MetadataInput"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad request"
+  /v1/products:
+    get:
+      tags:
+        - "/v1/products"
+      summary: "Lista produtos da collection raw_products"
+      operationId: "ListProductsHandler"
+      parameters:
+        - name: "identifier.type"
+          type: string
+          in: "query"
+        - name: "identifier.value"
+          type: string
+          in: "query"
+        - name: "matching_uuid"
+          type: string
+          in: "query"
+        - name: "navigation_id"
+          type: string
+          in: "query"
+        - name: "disable_on_matching"
+          type: boolean
+          in: "query"
+        - name: "fields"
+          type: string
+          in: "query"
+          description: "Accept list, example: title, matching_uuid, datasheet_uuid, ean, isbn"
+        - name: "_limit"
+          type: integer
+          in: "query"
+          default: 10
+        - name: "_offset"
+          type: integer
+          in: "query"
+          default: 0
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+        401:
+          description: "Unauthorized"
+  /v1/products/forbidden_terms:
+    get:
+      tags:
+        - "/v1/products"
+      summary: "Retorna os dados de forbidden_terms de um produto especifico no banco de dados"
+      operationId: "ForbiddenTermsHandler"
+      parameters:
+        - name: "sku"
+          in: "query"
+          type: string
+          required: true
+        - name: "seller_id"
+          type: string
+          in: "query"
+          required: true
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+        400:
+          description: "Bad request"
+  /exports/simple_product/seller_id/{seller_id}/sku/{sku}:
+    get:
+      tags:
+        - "exports"
+      operationId: "ExportsSimpleProductHandler"
+      parameters:
+        - name: "seller_id"
+          type: string
+          in: "path"
+          required: true
+        - name: "sku"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+        401:
+          description: "Unauthorized"
+  /exports/simple_product/navigation_id/{navigation_id}:
+    get:
+      tags:
+        - "exports"
+      operationId: "ExportsSimpleProductByNavigationIDHandler"
+      parameters:
+        - name: "navigation_id"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+        401:
+          description: "Unauthorized"
+  /exports/source_product/seller_id/{seller_id}/sku/{sku}:
+    get:
+      tags:
+        - "exports"
+      operationId: "ExportsSimpleProductHandler"
+      parameters:
+        - name: "seller_id"
+          type: string
+          in: "path"
+          required: true
+        - name: "sku"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+        400:
+          description: "Bad request"
+        401:
+          description: "Unauthorized"
+  /exports/source_product/navigation_id/{navigation_id}:
+    get:
+      tags:
+        - "exports"
+      operationId: "ExportsSimpleProductHandler"
+      parameters:
+        - name: "navigation_id"
+          type: string
+          in: "path"
+          required: true
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+        401:
+          description: "Unauthorized"
+  /rebuild/datalake:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildDatalakeHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildDatalake"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorized"
+  /classifications_rules:
+    get:
+      tags:
+        - "classifications rules"
+      summary: "List classifications rules"
+      operationId: "ClassificationsRulesHandler"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+    post:
+      tags:
+        - "classifications rules"
+      summary: "Create an classification rule"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ClassificationsRules"
+      responses:
+        201:
+          description: "Created"
+        400:
+          description: "Bad Request"
+    put:
+      tags:
+        - "classifications rules"
+      summary: "Updates an existing classification rule"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ClassificationsRulesWithID"
+      responses:
+        200:
+          description: "Updated"
+        400:
+          description: "Bad Request"
+        404:
+          description: "Not Found"
+  /classifications_rules/{id}:
+    get:
+        tags:
+          - "classifications rules"
+        summary: "Get classification rule"
+        operationId: "ClassificationsRulesByIdHandler"
+        parameters:
+        - name: "id"
+          in: "path"
+        produces:
+          - "application/json"
+        responses:
+          200:
+            description: "Success"
+          404:
+            description: "Not found"
+    delete:
+      tags:
+        - "classifications rules"
+      summary: "Delete classification rule"
+      parameters:
+      - name: "id"
+        in: "path"
+      responses:
+        200:
+          description: "Success"
+        204:
+          description: "No Content"
+        400:
+          description: "Bad Request"
+        404:
+          description: "Not Found"
+        500:
+          description: "Internal Server Error"
+  /moq/seller_id/{seller_id}/sku/{sku}:
+    get:
+      tags:
+        - "minimum order quantity"
+      summary: "get minimum order quantity by sku and seller_id"
+      operationId: "MinimumOrderQuantityBySkuAndSellerIdHandler"
+      parameters:
+        - name: "seller_id"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    put:
+      tags:
+        - "minimum order quantity"
+      summary: "update minimum order quantity by sku and seller_id"
+      operationId: "MinimumOrderQuantityBySkuAndSellerIdHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/MinimumOrderQuantity"
+        - name: "seller_id"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+    delete:
+      tags:
+        - "minimum order quantity"
+      summary: "delete minimum order quantity by sku and seller_id"
+      operationId: "MinimumOrderQuantityBySkuAndSellerIdHandler"
+      parameters:
+        - name: "user"
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              user:
+                type: string
+                example: "catalogo@luizalabs.com"
+        - name: "seller_id"
+          in: "path"
+          type: string
+          required: true
+        - name: "sku"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        204:
+          description: "No Content"
+        404:
+          description: "Not Found"
+  /moq/navigation_id/{navigation_id}:
+    get:
+      tags:
+        - "minimum order quantity"
+      summary: "get minimum order quantity by navigation_id"
+      operationId: "MinimumOrderQuantityByNavigationIdHandler"
+      parameters:
+        - name: "navigation_id"
+          in: "path"
+          type: string
+          required: true
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Not Found"
+    put:
+      tags:
+        - "minimum order quantity"
+      summary: "update minimum order quantity by navigation_id"
+      operationId: "MinimumOrderQuantityByNavigationIdHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/MinimumOrderQuantity"
+        - name: "navigation_id"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Success"
+    delete:
+      tags:
+        - "minimum order quantity"
+      summary: "delete minimum order quantity by navigation_id"
+      operationId: "MinimumOrderQuantityBySkuAndSellerIdHandler"
+      parameters:
+        - name: "user"
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              user:
+                type: string
+                example: "catalogo@luizalabs.com"
+        - name: "navigation_id"
+          in: "path"
+          type: string
+          required: true
+      responses:
+        204:
+          description: "No Content"
+        404:
+          description: "Not Found"
+  /rebuild/price_rules:
+    post:
+      tags:
+        - "rebuild"
+      operationId: "RebuildPriceRulesHandler"
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/RebuildPriceRules"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Bad Request"
+        401:
+          description: "Unauthorized"
+definitions:
+  Badge:
+    type: "object"
+    properties:
+      image_url:
+        type: "string"
+        example: "https://a-static.mlcdn.com.br/{w}x{h}/black_fraude.jpg"
+      position:
+        type: "string"
+        example: "bottom"
+      container:
+        type: "string"
+        example: "information"
+      text:
+        type: "string"
+        example: "Melhores oferta é na BLACK FRAUDE da Magazine Luiza - Procure este selo e compre tranquilo que garantimos o melhor preço."
+      tooltip:
+        type: "string"
+        example: "Black Fraude"
+      start_at:
+        type: "string"
+        format: "date"
+        example: "2019-06-08"
+      end_at:
+        type: "string"
+        format: "date"
+        example: "2019-06-10"
+      products:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            sku:
+              type: "string"
+              example: "123456789"
+            seller_id:
+              type: "string"
+              example: "magazineluiza"
+      name:
+        type: "string"
+        example: "Black Fraude"
+      slug:
+        type: "string"
+        example: "black-fraude"
+      active:
+        type: "boolean"
+        example: true
+      priority:
+        type: "integer"
+        format: "int64"
+        example: 7
+  UnpublishProduct:
+    type: "object"
+    properties:
+      navigation_id:
+        type: "string"
+        example: "123123"
+      user:
+        type: "string"
+        example: "bugsbunny"
+  PendingDelete:
+    type: "object"
+    properties:
+      sellers:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            sku:
+              type: "string"
+              example: "82323jjjj3"
+            seller_id:
+              type: "string"
+              example: "seller_a"
+  PriceLock:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "whirpool"
+      parcent:
+        type: "integer"
+        format: "int64"
+        example: 35
+      user:
+        type: "string"
+        example: "foo@luizalabs.com"
+  Blacklist:
+    type: "object"
+    properties:
+      term:
+        type: "string"
+        example: "apple"
+      field:
+        type: "string"
+        example: "brand"
+  RebuildCatalogNotification:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        seller_id:
+          type: "string"
+          example: "magazineluiza"
+        sku:
+          type: "string"
+          example: "010513600"
+        navigation_id:
+          type: "string"
+          example: "0105136"
+        type:
+          type: "string"
+          example: "product"
+        action:
+          type: "string"
+          example: "update"
+  Rebuild:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+  RebuildProduct:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      sku:
+        type: "string"
+        example: "123456789"
+  RebuildMarvin:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      action:
+        type: "string"
+        example: "update"
+  RebuildScore:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+  RebuildProductScore:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      sku:
+        type: "string"
+        example: "123456789"
+  RebuildProductExporter:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      sku:
+        type: "string"
+        example: "123456789"
+      type:
+        type: "string"
+        example: "product"
+  Categories:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        category_id:
+          type: "string"
+          example: "LI"
+        metabook_id:
+          type: "string"
+          example: "PET013000"
+        subcategory_ids:
+          type: "array"
+          items:
+            type: "string"
+            example: "LDAR"
+  ProductListItem:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        seller_id:
+          type: "string"
+          example: "magazineluiza"
+        sku:
+          type: "string"
+          example: "123456789"
+  ScoreCriteria:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        entity_name:
+          type: "string"
+          example: "default"
+        elements:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              name:
+                type: "string"
+                example: "title"
+              type:
+                type: "string"
+                example: "range"
+              criteria:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    name:
+                      type: "string"
+                      example: "between_1_and_30_characters"
+                    min:
+                      type: "integer"
+                      example: 1
+                    max:
+                      type: "integer"
+                      example: 30
+                    points:
+                      type: "integer"
+                      example: 20
+  ScoreWeight:
+    type: "object"
+    properties:
+      entity_name:
+        type: "string"
+        example: "default"
+      criteria_name:
+        type: "string"
+        example: "title"
+      weight:
+        type: "integer"
+        example: 30
+  MetadataInput:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        example: "smartcontent"
+      identified:
+        type: "string"
+        example: "123456789"
+  Seller:
+    type: "object"
+    properties:
+      message:
+        type: "object"
+        properties:
+          data:
+            type: "string"
+            example: "eyJpZCI6ICJtbGVudHJlZ2FzIiwgImFjY291bnRfbmFtZSI6ICJyZV9jazEyaWI3NXQwMWRpc2Q2ZWpvMXdpZ2x0IiwgImNvbnRhY3RzIjogW10sICJhZGRyZXNzIjogeyJhZGRyZXNzIjogIlJ1YSBWb2x1bnRcdTAwZTFyaW9zIGRhIEZyYW5jYSIsICJudW1iZXIiOiAiMTQ2NSIsICJjb21wbGVtZW50IjogIiIsICJkaXN0cmljdCI6ICJDZW50cm8iLCAiY2l0eSI6ICJGcmFuY2EiLCAic3RhdGUiOiAiU1AiLCAiY291bnRyeSI6ICJCcmFzaWwiLCAiemlwY29kZSI6ICIxNDQwMDQ5MCJ9LCAibGVnYWxfbmFtZSI6ICJNYWdhemluZSBMdWl6YSIsICJ0cmFkaW5nX25hbWUiOiAibWdsdTMiLCAiZG9jdW1lbnRfbnVtYmVyIjogIjQ3OTYwOTUwMDAwMTIxIiwgInRyYW5zZmVyX2RheSI6IDEsICJiYW5rX2NvZGUiOiAiMjM3IiwgImJhbmtfY29kZV9kaWdpdCI6ICIiLCAiYmFua19hZ2VuY3kiOiAiMjA0MiIsICJiYW5rX2FnZW5jeV9kaWdpdCI6ICI3IiwgImJhbmtfYWNjb3VudCI6ICI5MzAwMSIsICJiYW5rX2FjY291bnRfZGlnaXQiOiAiNiIsICJmaW5hbmNpYWxfZW1haWwiOiAic2FjQG1hZ2F6aW5lbHVpemEuY29tLmJyIiwgImNhbl9hbnRpY2lwYXRlIjogdHJ1ZSwgImRpc3RyaWJ1dGlvbl9jZW50ZXJfemlwY29kZSI6IG51bGwsICJpbnRlZ3JhdGlvbl9pbmZvIjogbnVsbCwgInNlcnZpY2VzIjogW3sic2VydmljZSI6ICJtYWdhbHUtcGFnYW1lbnRvcyIsICJpc19hY3RpdmUiOiB0cnVlfV0sICJpc19hY3RpdmUiOiB0cnVlLCAibmFtZSI6ICJNYWdhbHUgRW50cmVnYXMiLCAiZGVmYXVsdF9mZWVfcGVyY2VudGFnZSI6ICIxMC4wMCIsICJhY2NvdW50X2dyb3VwIjogIm1sZW50cmVnYXMiLCAicGxhdGZvcm0iOiAib3BlbmFwaSIsICJ0cmFuc2Zlcl9pbnRlcnZhbCI6ICJ3ZWVrbHkiLCAibGVhZF9jcmVhdGVkX2F0IjogbnVsbCwgImFwaV9zaWduYXR1cmVfc2VjcmV0IjogIiIsICJzaGlwcGluZ19mYWxsYmFja191cmwiOiAiIiwgInNoaXBwaW5nX2NhbGxiYWNrX3VybCI6ICIiLCAicmVzZXJ2YXRpb25fY2FsbGJhY2tfdXJsIjogIiIsICJmdWxmaWxsbWVudF9jYWxsYmFja191cmwiOiAiIiwgIm9yZGVyX3N0YXR1c19jYWxsYmFja191cmwiOiAiIiwgIm9yZGVyX2l0ZW1fY2FuY2VsX2NhbGxiYWNrX3VybCI6ICIiLCAic2VsbHNfdG9fY29tcGFueSI6IHRydWUsICJwaG9uZSI6IG51bGwsICJzdGF0ZV9pbnNjcmlwdGlvbiI6IG51bGwsICJpdF9lbWFpbCI6IG51bGwsICJidXNpbmVzc19jb25kaXRpb24iOiAiIiwgInNpdGVfdXJsIjogbnVsbCwgIm1lcmNoYW50X2NvZGUiOiAiODYwNiIsICJibG9ja19yZWNlaXZhYmxlcyI6IHRydWUsICJhbnRpY2lwYXRpb25fZmVlIjogIjEuNDkiLCAibWF4X2FudGljaXBhdGlvbl9wZXJjZW50YWdlIjogIjEwMC4wMCIsICJzZWxsZXJfZXh0ZXJuYWxfaWQiOiAiIiwgIm1kciI6ICIwLjAwIn0="
+          messageId:
+            type: "string"
+            example: "766983098991499"
+          message_id:
+            type: "string"
+            example: "766983098991499"
+          publishTime:
+            type: "string"
+            example: "2019-10-02T20:45:08.802Z"
+          publish_time:
+            type: "string"
+            example: "2019-10-02T20:45:08.802Z"
+      subscription:
+        type: "string"
+        example: "projects/maga-homolog/subscriptions/acme-helena-sellers"
+  RebuildMatching:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      sku:
+        type: "string"
+        example: "123456789"
+      navigation_id:
+        type: "string"
+        example: "123456789"
+  RebuildMedia:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      sku:
+        type: "string"
+        example: "123456789"
+      from_bucket:
+        type: "boolean"
+        example: "true"
+  ForbiddenTerms:
+    type: "object"
+    properties:
+      DE:
+        type: "string"
+        example: "PARA"
+  ProductExtraData:
+    type: "object"
+    properties:
+      seller_id:
+        type: string
+        example: magazineluiza
+      sku:
+        type: string
+        example: 0123456789
+      extra_data:
+        type: object
+        example: [
+          {
+            'name': 'fulfillment',
+            'value': 'false'
+          },
+          {
+            'name': 'IdSkuErp',
+            'value': 'QAF001'
+          }
+        ]
+  RebuildDatalake:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      sku:
+        type: "string"
+        example: "010513600"
+      navigation_id:
+        type: "string"
+        example: "0105136"
+      type:
+        type: "string"
+        example: "product"
+      action:
+        type: "string"
+        example: "update"
+      source:
+        type: "string"
+        example: "magalu"
+  ClassificationsRules:
+    type: "object"
+    properties:
+      operation:
+        type: "string"
+        example: "MENOR_IGUAL"
+      product_type:
+        type: "string"
+        example: "Refrigerador"
+      price:
+        type: "float"
+        example: "400"
+      to:
+        type: "object"
+        properties:
+          product_type:
+            type: "string"
+            example: "Peças para Refrigerador"
+          category_id:
+            type: "string"
+            example: "ED"
+          subcategory_ids:
+            type: "array"
+            example: ["FAPG", "REFR", "ACRF"]
+      user:
+        type: "string"
+        example: "foo@luizalabs.com"
+  ClassificationsRulesWithID:
+    type: "object"
+    allOf:
+      - $ref: "#/definitions/ClassificationsRules"
+      - type: object
+        properties:
+          id:
+            type: "string"
+            example: "2670eac3-7284-47aa-9e26-120103b60896"
+  RebuildPriceRules:
+    type: "object"
+    properties:
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      sku:
+        type: "string"
+        example: "010513600"
+      navigation_id:
+        type: "string"
+        example: "0105136"
+  NotificationPayload:
+    type: "object"
+    properties:
+      sku:
+        type: "string"
+        example: "010513600"
+      seller_id:
+        type: "string"
+        example: "magazineluiza"
+      navigation_id:
+        type: "string"
+        example: "010513600"
+      entity:
+        type: "string"
+        example: "Celular"
+      metadata:
+        type: "object"
+        example:
+          "Quantidade de Chips": "Dual Chip"
+          "Tamanho da Tela": "5.5 polegadas"
+          "Tecnologia": "4G,BLuetooth,WiFi"
+          "Memória RAM": "3GB"
+          "Marca": "Motorola"
+          "Cor": "Platinum"
+          "Resolução da Câmera Traseira": "13MP"
+          "Capacidade de Memória": "32GB"
+      category_id:
+        type: "string"
+        example: "TE"
+      subcategory_ids:
+        type: "array"
+        items:
+          type: "string"
+        example: ["TCSP", "SRMT", "MGSP"]
+      product_matching_metadata:
+        type: "array"
+        items:
+          type: "string"
+        example: []
+      product_name_metadata:
+        type: "array"
+        items:
+          type: "string"
+        example: []
+      sku_metadata:
+        type: "array"
+        items:
+          type: "string"
+        example: []
+  MinimumOrderQuantity:
+    type: "object"
+    properties:
+      value:
+        type: "float"
+        example: "5"
+      user:
+        type: "string"
+        example: "catalogo@luizalabs.com"
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+security:
+  - ApiKeyAuth: []

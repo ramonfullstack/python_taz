@@ -1,0 +1,1 @@
+SCOPE = 'update_category'

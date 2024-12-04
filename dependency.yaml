@@ -1,0 +1,36 @@
+version: 2.481.1
+owner: squad-catalogo
+tribe: catalogo
+vertical: sellers
+application:
+    name: taz
+    fortify_id: taz
+    description: O Taz é responsável por pré-processar e publicar produtos no [ACME](https://github.com/luizalabs/acme). Ele é composto por uma série de workers assíncronos especializados por escopo de informação (produto, mídias, precificação e ficha técnica)."
+    languages: "Python"
+    health_check: "https://taz-api.magazineluiza.com.br/healthcheck/"
+security:
+    url_homolog: "https://taz-api.tst-5.magazineluiza.com.br/"
+    url_prod: "https://taz-api.magazineluiza.com.br/"
+    businessRisk: "High"
+    public: "Internal, Clients"
+    accessibility: "Yes"
+    waf: "No"
+    qradar: "No"
+    authentication: "Api Token"
+    administration: "Not apply"
+dependencies:
+    external:
+        - linux
+    infrastructure:
+        - mongodb
+        - sns
+        - sqs
+        - kinesis
+        - google_storage
+        - pubsub
+        - redis
+    internal:
+        - babel
+        - doory
+        - integracommerce
+        - ipdv

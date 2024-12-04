@@ -1,0 +1,30 @@
+image: python:3.8.16
+
+services:
+- name: mongo:3.3
+  alias: mongodb
+- name: redis:3.2
+  alias: redis
+
+variables:
+  AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+  AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+  IMAGE_TRIBE: "catalogo"
+  DEPLOYMENT_REPO: "gitlab.luizalabs.com/cicd/tribe-catalogo.git"
+
+stages:
+  - install
+  - tests
+  - code analysis
+  - build
+  - release
+  - gmud
+  - deploy sandbox
+  - rollback sandbox
+  - deploy production
+  - rollback production
+
+include:
+  - local: .gitlab/ci/common.yml
+  - local: .gitlab/ci/sandbox.yml
+  - local: .gitlab/ci/production.yml

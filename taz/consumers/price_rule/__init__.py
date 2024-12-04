@@ -1,0 +1,1 @@
+SCOPE = 'price_rule'

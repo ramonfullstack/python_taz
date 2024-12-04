@@ -1,0 +1,414 @@
+# Templates reutilizaveis
+
+.argocd-deploy-sandbox:
+  image: $CIKNIFE_IMAGE
+  cache: {}
+  stage: deploy sandbox
+  variables:
+    ARGOCD_BRANCH: master
+    ARGOCD_SERVER: $HML_ARGOCD_SERVER
+    ARGOCD_AUTH_TOKEN: $HML_ARGOCD_AUTH_TOKEN
+  script:
+    - ci-knife argocd-deploy --variation ${ARGOCD_APPS} --path homolog --no-msg
+    - ci-knife argocd-sync --apps ${ARGOCD_APPS}
+  dependencies: []
+  needs:
+    - container builder
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: manual
+    - if: "$CI_MERGE_REQUEST_IID"
+      when: manual
+
+.argocd-rollback-sandbox:
+  extends: .argocd-deploy-sandbox
+  stage: rollback sandbox
+  script:
+    - ci-knife argocd-rollback --path homolog --no-msg
+    - ci-knife argocd-sync --apps ${ARGOCD_APPS}
+
+
+# Deploys
+
+api sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz
+
+consumer category sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-category
+
+consumer complete product sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-complete-product
+
+consumer datalake sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-datalake
+
+consumer enriched product sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-enriched-product
+
+consumer factsheet sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-factsheet
+
+consumer label sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-label
+
+consumer matching product sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-matching-product
+
+consumer matching sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-matching
+
+consumer media sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-media
+
+consumer media bucket sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-media-bucket
+
+consumer metadata input sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-metadata-input
+
+consumer metadata verify sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-metadata-verify
+
+consumer price 3P sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-price-3p
+
+consumer price rule sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-price-rule
+
+consumer pricing sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-pricing
+
+consumer product exporter sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-product-exporter
+
+consumer product sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-product
+
+consumer product score sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-product-score
+
+consumer product writer sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-product-writer
+
+consumer rebuild sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-rebuild
+
+consumer stock 3P sandbox :
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-stock-3p
+
+consumer stock sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-stock
+
+consumer update category sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-update-category
+
+consumer user review sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-user-review
+
+consumer catalog notification sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-catalog-notification
+
+cron price rules sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-cron-price-rules
+
+cron metabooks ftp sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-cron-metabooks-ftp
+
+cron store pickup checker sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-cron-store-pickup-checker
+
+poller base price sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-base-price
+
+poller category sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-category
+
+poller factsheet sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-factsheet
+
+poller lu content sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-lu-content
+
+poller video sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-video
+
+poller partner sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-partner
+
+poller price campaign sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-price-campaign
+
+poller price sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-price
+
+poller product sandbox:
+  extends: .argocd-deploy-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-product
+
+
+# Rollbacks
+
+api sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz
+
+consumer category sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-category
+
+consumer complete product sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-complete-product
+
+consumer datalake sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-datalake
+
+consumer enriched product sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-enriched-product
+
+consumer factsheet sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-factsheet
+
+consumer label sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-label
+
+consumer matching product sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-matching-product
+
+consumer matching sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-matching
+
+consumer media sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-media
+
+consumer media bucket sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-media-bucket
+
+consumer metadata input sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-metadata-input
+
+consumer metadata verify sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-metadata-verify
+
+consumer price 3P sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-price-3p
+
+consumer price rule sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-price-rule
+
+consumer pricing sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-pricing
+
+consumer product exporter sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-product-exporter
+
+consumer product sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-product
+
+consumer product score sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-product-score
+
+consumer product writer sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-product-writer
+
+consumer rebuild sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-rebuild
+
+consumer stock 3P sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-stock-3p
+
+consumer stock sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-stock
+
+consumer update category sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-update-category
+
+consumer user review sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-user-review
+
+consumer catalog notification sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-consumer-catalog-notification
+
+cron price rules sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-cron-price-rules
+
+cron metabooks ftp sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-cron-metabooks-ftp
+
+cron store pickup checker sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-cron-store-pickup-checker
+
+poller base price sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-base-price
+
+poller category sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-category
+
+poller factsheet sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-factsheet
+
+poller lu content sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-lu-content
+
+poller video sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-video
+
+poller partner sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-partner
+
+poller price campaign sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-price-campaign
+
+poller price sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-price
+
+poller product sandbox rollback:
+  extends: .argocd-rollback-sandbox
+  variables:
+    ARGOCD_APPS: taz-poller-product
